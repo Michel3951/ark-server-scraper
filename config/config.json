@@ -4,7 +4,6 @@
   "channelID": "CHANNEL_ID_HERE",
   "mode": 2,
   "servers": [
-    "https://www.battlemetrics.com/servers/ark/12345",
-    "https://www.battlemetrics.com/servers/ark/123456"
-  ]
+    "https://www.battlemetrics.com/servers/ark/73185"
+    ]
 }

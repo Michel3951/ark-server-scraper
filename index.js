@@ -18,44 +18,52 @@ client.on('ready', () => {
     let guild = channel.guild;
     let clientAsMember = guild.me;
 
-    servers.forEach(server => {
-        let id = server.match(/[0-9]+$/)[0] || null;
+    fetchServers();
 
-        if (id) {
-            fetch(`https://api.battlemetrics.com/servers/${id}`)
-                .then(res => res.json())
-                .then(json => {
-                    if (json.data.relationships.game.data.id !== 'ark') return warn(`Server ${server} is not running the game ARK: Survival Evolved.`);
-                    if (!channel.permissionsFor(clientAsMember).has('SEND_MESSAGES')) return warn(`I cannot send messages in ${channel.name}`);
+    setInterval(() => {
+        fetchServers();
+    }, interval * 60000);
 
-                    if (mode === 1) { //General information only
-                        general(channel, json);
-                    }
+    function fetchServers() {
+        servers.forEach(server => {
+            let id = server.match(/[0-9]+$/)[0] || null;
 
-                    if (mode === 2) { //Player list only
-                        players(channel, json);
-                    }
+            if (id) {
+                fetch(`https://api.battlemetrics.com/servers/${id}`)
+                    .then(res => res.json())
+                    .then(json => {
+                        if (json.data.relationships.game.data.id !== 'ark') return warn(`Server ${server} is not running the game ARK: Survival Evolved.`);
+                        if (!channel.permissionsFor(clientAsMember).has('SEND_MESSAGES')) return warn(`I cannot send messages in ${channel.name}`);
 
-                    if (mode === 3) { // General information + mod list
-                        general(channel, json);
-                        mods(channel, json);
-                    }
+                        if (mode === 1) { //General information only
+                            general(channel, json);
+                        }
 
-                    if (mode === 4) { // General information + player list
-                        general(channel, json);
-                        players(channel, json);
-                    }
+                        if (mode === 2) { //Player list only
+                            players(channel, json);
+                        }
 
-                    if (mode === 5) { // All
-                        general(channel, json);
-                        mods(channel, json);
-                        players(channel, json);
-                    }
-                });
-        } else {
-            warn(`Unable to extract ID from URL. URL: ${server}`)
-        }
-    });
+                        if (mode === 3) { // General information + mod list
+                            general(channel, json);
+                            mods(channel, json);
+                        }
+
+                        if (mode === 4) { // General information + player list
+                            general(channel, json);
+                            players(channel, json);
+                        }
+
+                        if (mode === 5) { // All
+                            general(channel, json);
+                            mods(channel, json);
+                            players(channel, json);
+                        }
+                    });
+            } else {
+                warn(`Unable to extract ID from URL. URL: ${server}`)
+            }
+        });
+    }
 });
 
 function players(channel, json) {
