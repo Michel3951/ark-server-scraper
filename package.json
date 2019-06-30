@@ -1,0 +1,28 @@
+{
+  "name": "battlemetrics",
+  "version": "1.0.0",
+  "description": "ARK Server Scraper",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Michel3951/ark-server-scraper.git"
+  },
+  "keywords": [
+    "ark",
+    "ark",
+    "server"
+  ],
+  "author": "Michel3951",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Michel3951/ark-server-scraper/issues"
+  },
+  "homepage": "https://github.com/Michel3951/ark-server-scraper#readme",
+  "dependencies": {
+    "discord.js": "github:discordjs/discord.js",
+    "node-fetch": "^2.6.0"
+  }
+}

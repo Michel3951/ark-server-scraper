@@ -1,0 +1,10 @@
+{
+  "token": "YOUR_TOKEN_HERE",
+  "interval": 5,
+  "channelID": "CHANNEL_ID_HERE",
+  "mode": 2,
+  "servers": [
+    "https://www.battlemetrics.com/servers/ark/12345",
+    "https://www.battlemetrics.com/servers/ark/123456"
+  ]
+}
