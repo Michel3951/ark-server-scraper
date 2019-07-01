@@ -7,7 +7,7 @@ After these 2 steps you need to install the required packages. Open a terminal i
 ### Creating the bot
 Now the first part is done. In order to get the bot online you need to make one first, you can do this [here](https://discordapp.com/developers/applications/) click on "New Application" and give it a fancy name.
 Go to the "Bot" section and click on "Add bot", after that copy your token (Not your client id) and paste it in `config/config.json`. Now you need to set a channel where the bot should post the messages
-DM's are not supported, make sure the bot has permission to read & send messages. To track a server copy the url from the battlemetrics page, for example ```https://www.battlemetrics.com/servers/ark/73185```
+DM's are not supported, make sure the bot has permission to read & send messages, to set a channel go to `config/config.json` and paste a channel ID. You can get the channel id by typing `\#channel-name` on discord. To track a server copy the url from the battlemetrics page, for example ```https://www.battlemetrics.com/servers/ark/73185```
 and put it inside the servers array in `config/config.json`. If you're not a programmer, it should look something like this:
 ```   
 {
