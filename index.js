@@ -1,6 +1,6 @@
 const {MessageEmbed, Client} = require('discord.js');
 const fetch = require('node-fetch');
-const {token, interval, servers, channelID, mode} = require('./config/config');
+const {token, interval, servers, channelID, mode, console_servers, apikey} = require('./config/config');
 
 const client = new Client();
 
@@ -63,6 +63,14 @@ client.on('ready', () => {
                 warn(`Unable to extract ID from URL. URL: ${server}`)
             }
         });
+        console_servers.forEach(server => {
+            fetch(`https://api.michel3951.com/api/v1/ark/server?apikey=${apikey}&platform=${server.platform}&name[]=${server.name}`)
+                .then(res => res.json())
+                .then(json => {
+                    if (!json.content) return error(json.message);
+                    consolex(channel, json)
+                });
+        });
     }
 });
 
@@ -114,6 +122,11 @@ function general(channel, json) {
     channel.send(`steam://connect/${data.ip}:${data.port}`, {embed: embed}).catch(e => {
         error(e.message);
     });
+}
+
+function consolex(channel, json) {
+    let server = json.content[0];
+    channel.send(`[${server.Name}] There are ${server.NumPlayers} out of ${server.MaxPlayers} online players online.`)
 }
 
 function log(msg) {

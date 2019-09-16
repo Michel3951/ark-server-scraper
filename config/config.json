@@ -1,9 +1,16 @@
 {
-  "token": "YOUR_TOKEN_HERE",
+  "token": "BOT_TOKEN_NOT_CLIENT_ID",
   "interval": 5,
-  "channelID": "CHANNEL_ID_HERE",
+  "channelID": "CHANNEL_ID",
   "mode": 2,
   "servers": [
     "https://www.battlemetrics.com/servers/ark/73185"
-    ]
+  ],
+  "console_servers": [
+    {
+      "name": "NA-PVP-SwitchOfficial-TheIsland44",
+      "platform": "switch"
+    }
+  ],
+  "apikey": "YOUR_API_KEY"
 }

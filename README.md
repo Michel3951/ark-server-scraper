@@ -40,4 +40,16 @@ The information that will be posted
 4. General information + player list
 5. All
 
+# For consoles
+To add your xbox, switch or mobile server you will need to create an [API Key](https://api.michel3951.com/register) first and put it in `config.json`. To add a server put the information in the array in `console_servers`. It should look something like this:
+```json
+  "console_servers": [
+    {
+      "name": "NA-PVP-SwitchOfficial-TheIsland44",
+      "platform": "switch"
+    }
+  ],
+  "apikey": "YOUR_API_KEY"
+```
+
 **If you come across any problems, or have any questions, please create an issue.**
