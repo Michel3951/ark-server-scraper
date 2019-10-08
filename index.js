@@ -26,37 +26,44 @@ client.on('ready', () => {
 
     function fetchServers() {
         servers.forEach(server => {
-            let id = server.match(/[0-9]+$/)[0] || null;
+            let id = server.url.match(/[0-9]+$/)[0] || null;
 
             if (id) {
                 fetch(`https://api.battlemetrics.com/servers/${id}`)
                     .then(res => res.json())
                     .then(json => {
-                        if (json.data.relationships.game.data.id !== 'ark') return warn(`Server ${server} is not running the game ARK: Survival Evolved.`);
+                        if (json.data.relationships.game.data.id !== 'ark') return warn(`Server ${server.url} is not running the game ARK: Survival Evolved.`);
                         if (!channel.permissionsFor(clientAsMember).has('SEND_MESSAGES')) return warn(`I cannot send messages in ${channel.name}`);
-
+                        let override = null;
+                        if (server.channel) {
+                            if (client.channels.has(server.channel)) {
+                                override = client.channels.get(server.channel);
+                            } else {
+                                warn('The channel ID provided for ' + server.name + ' is not valid.');
+                            }
+                        }
                         if (mode === 1) { //General information only
-                            general(channel, json);
+                            general(override ? override : channel, json);
                         }
 
                         if (mode === 2) { //Player list only
-                            players(channel, json);
+                            players(override ? override : channel, json);
                         }
 
                         if (mode === 3) { // General information + mod list
-                            general(channel, json);
-                            mods(channel, json);
+                            general(override ? override : channel, json);
+                            mods(override ? override : channel, json);
                         }
 
                         if (mode === 4) { // General information + player list
-                            general(channel, json);
-                            players(channel, json);
+                            general(override ? override : channel, json);
+                            players(override ? override : channel, json);
                         }
 
                         if (mode === 5) { // All
-                            general(channel, json);
-                            mods(channel, json);
-                            players(channel, json);
+                            general(override ? override : channel, json);
+                            mods(override ? override : channel, json);
+                            players(override ? override : channel, json);
                         }
                     });
             } else {
@@ -68,7 +75,14 @@ client.on('ready', () => {
                 .then(res => res.json())
                 .then(json => {
                     if (!json.content) return error(json.message);
-                    consolex(channel, json)
+                    if (server.channel) {
+                        if (client.channels.has(server.channel)) {
+                            consolex(client.channels.get(server.channel), json);
+                        } else {
+                            consolex(channel, json);
+                            warn('The channel ID provided for ' + server.name + ' is not valid.');
+                        }
+                    }
                 });
         });
     }
