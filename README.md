@@ -9,15 +9,19 @@ Now the first part is done. In order to get the bot online you need to make one 
 Go to the "Bot" section and click on "Add bot", after that copy your token (Not your client id) and paste it in `config/config.json`. Now you need to set a channel where the bot should post the messages
 DM's are not supported, make sure the bot has permission to read & send messages, to set a channel go to `config/config.json` and paste a channel ID. You can get the channel id by typing `\#channel-name` on discord. To track a server copy the url from the battlemetrics page, for example ```https://www.battlemetrics.com/servers/ark/73185```
 and put it inside the servers array in `config/config.json`. If you're not a programmer, it should look something like this:
-```   
+```json   
 {
   "token": "YOUR_TOKEN_HERE",
   "interval": 5,
   "channelID": "CHANNEL_ID_HERE",
   "mode": 2,
   "servers": [
-    "https://www.battlemetrics.com/servers/ark/12345",
-    "https://www.battlemetrics.com/servers/ark/123456"
+    {
+        "url": "https://www.battlemetrics.com/servers/ark/12345"
+    },
+    {
+        "url": "https://www.battlemetrics.com/servers/ark/123456"
+    }
   ]
 }
 ```
@@ -39,6 +43,14 @@ The information that will be posted
 3. General information + mod list
 4. General information + player list
 5. All
+### Channel per server
+You may provide a `"channel"` to a server object to give a server it's own channel, to do this simply add `"channel": "CHANNEL_ID"`. Now the bot will post the data for this server in the given channel instead of the channel specified in `"channelID"`. Example:
+```json
+    {
+      "url": "https://www.battlemetrics.com/servers/ark/123456",
+      "channel": "CHANNEL_ID"
+    }
+```
 
 # For consoles
 To add your xbox, switch or mobile server you will need to create an [API Key](https://api.michel3951.com/register) first and put it in `config.json`. To add a server put the information in the array in `console_servers`. It should look something like this:

@@ -4,12 +4,15 @@
   "channelID": "CHANNEL_ID",
   "mode": 2,
   "servers": [
-    "https://www.battlemetrics.com/servers/ark/73185"
+    {
+      "url": "https://www.battlemetrics.com/servers/ark/73185"
+    }
   ],
   "console_servers": [
     {
       "name": "NA-PVP-SwitchOfficial-TheIsland44",
-      "platform": "switch"
+      "platform": "switch",
+      "channel": "SECOND_CHANNEL_ID"
     }
   ],
   "apikey": "YOUR_API_KEY"
