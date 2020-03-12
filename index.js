@@ -1,8 +1,9 @@
 const {MessageEmbed, Client} = require('discord.js');
 const fetch = require('node-fetch');
-const {token, interval, servers, channelID, mode, console_servers, apikey} = require('./config/config');
+const {token, interval, servers, channelID, mode, console_servers, apikey, status, watchForChange} = require('./config/config');
 
 const client = new Client();
+const older = new Map();
 
 if (!token) return error("Please specify a token in config/config.json");
 if (typeof token !== "string") return error(`Token must be a string, ${typeof token} given.`);
@@ -12,11 +13,19 @@ client.on('ready', () => {
 
     if (typeof channelID !== 'string') return error(`The channel ID must be a string, ${typeof channel} given.`);
     if (typeof servers !== 'object') return error(`The channel ID must an object (array), ${typeof servers} given.`);
-    if (!client.channels.has(channelID)) return error(`The bot cannot access the channel with id ${channelID}, make sure the bot can read & send messages.`);
-    let channel = client.channels.get(channelID);
+    if (!client.channels.cache.has(channelID)) return error(`The bot cannot access the channel with id ${channelID}, make sure the bot can read & send messages.`);
+    let channel = client.channels.cache.get(channelID);
     if (channel.type !== 'text') return error(`${channel.name} is not a text channel.`);
     let guild = channel.guild;
     let clientAsMember = guild.me;
+
+    if (status) {
+        if (status.length > 32) {
+            error('The status may not be greater then 32 characters in length.');
+        } else {
+            client.user.setActivity(status, {type: 'PLAYING'}).catch(console.error);
+        }
+    }
 
     fetchServers();
 
@@ -25,66 +34,75 @@ client.on('ready', () => {
     }, interval * 60000);
 
     function fetchServers() {
-        servers.forEach(server => {
-            let id = server.url.match(/[0-9]+$/)[0] || null;
+        if (servers) {
+            servers.forEach(server => {
+                let id = server.url.match(/[0-9]+$/)[0] || null;
 
-            if (id) {
-                fetch(`https://api.battlemetrics.com/servers/${id}`)
+                if (id) {
+                    fetch(`https://api.battlemetrics.com/servers/${id}`)
+                        .then(res => res.json())
+                        .then(json => {
+                            if (!older.has(id)) {
+                                older.set(id, json.data.players);
+                            } else {
+                                if (older.get(id) === json.data.players) return;
+                            }
+                            if (json.data.relationships.game.data.id !== 'ark') return warn(`Server ${server.url} is not running the game ARK: Survival Evolved.`);
+                            if (!channel.permissionsFor(clientAsMember).has('SEND_MESSAGES')) return warn(`I cannot send messages in ${channel.name}`);
+                            let override = null;
+                            if (server.channel) {
+                                if (client.channels.cache.has(server.channel)) {
+                                    override = client.channels.cache.get(server.channel);
+                                } else {
+                                    warn('The channel ID provided for ' + server.name + ' is not valid.');
+                                }
+                            }
+                            if (mode === 1) { //General information only
+                                general(override ? override : channel, json);
+                            }
+
+                            if (mode === 2) { //Player list only
+                                players(override ? override : channel, json);
+                            }
+
+                            if (mode === 3) { // General information + mod list
+                                general(override ? override : channel, json);
+                                mods(override ? override : channel, json);
+                            }
+
+                            if (mode === 4) { // General information + player list
+                                general(override ? override : channel, json);
+                                players(override ? override : channel, json);
+                            }
+
+                            if (mode === 5) { // All
+                                general(override ? override : channel, json);
+                                mods(override ? override : channel, json);
+                                players(override ? override : channel, json);
+                            }
+                        });
+                } else {
+                    warn(`Unable to extract ID from URL. URL: ${server}`)
+                }
+            });
+        }
+        if (console_servers) {
+            console_servers.forEach(server => {
+                fetch(`https://api.michel3951.com/api/v1/ark/server?apikey=${apikey}&platform=${server.platform}&name[]=${server.name}`)
                     .then(res => res.json())
                     .then(json => {
-                        if (json.data.relationships.game.data.id !== 'ark') return warn(`Server ${server.url} is not running the game ARK: Survival Evolved.`);
-                        if (!channel.permissionsFor(clientAsMember).has('SEND_MESSAGES')) return warn(`I cannot send messages in ${channel.name}`);
-                        let override = null;
+                        if (!json.content) return error(json.message);
                         if (server.channel) {
-                            if (client.channels.has(server.channel)) {
-                                override = client.channels.get(server.channel);
+                            if (client.channels.cache.has(server.channel)) {
+                                consolex(client.channels.cache.get(server.channel), json);
                             } else {
+                                consolex(channel, json);
                                 warn('The channel ID provided for ' + server.name + ' is not valid.');
                             }
                         }
-                        if (mode === 1) { //General information only
-                            general(override ? override : channel, json);
-                        }
-
-                        if (mode === 2) { //Player list only
-                            players(override ? override : channel, json);
-                        }
-
-                        if (mode === 3) { // General information + mod list
-                            general(override ? override : channel, json);
-                            mods(override ? override : channel, json);
-                        }
-
-                        if (mode === 4) { // General information + player list
-                            general(override ? override : channel, json);
-                            players(override ? override : channel, json);
-                        }
-
-                        if (mode === 5) { // All
-                            general(override ? override : channel, json);
-                            mods(override ? override : channel, json);
-                            players(override ? override : channel, json);
-                        }
                     });
-            } else {
-                warn(`Unable to extract ID from URL. URL: ${server}`)
-            }
-        });
-        console_servers.forEach(server => {
-            fetch(`https://api.michel3951.com/api/v1/ark/server?apikey=${apikey}&platform=${server.platform}&name[]=${server.name}`)
-                .then(res => res.json())
-                .then(json => {
-                    if (!json.content) return error(json.message);
-                    if (server.channel) {
-                        if (client.channels.has(server.channel)) {
-                            consolex(client.channels.get(server.channel), json);
-                        } else {
-                            consolex(channel, json);
-                            warn('The channel ID provided for ' + server.name + ' is not valid.');
-                        }
-                    }
-                });
-        });
+            });
+        }
     }
 });
 
@@ -93,7 +111,7 @@ function players(channel, json) {
         .then(res => res.json())
         .then(players => {
             let message = players.data.map(player => player.attributes.name).join('\n').substring(0, (2000 - json.data.attributes.name.length));
-            channel.send(`**Players - ${json.data.attributes.name}**\`\`\`\n${message}\`\`\``).catch(e => {
+            channel.send(`**Players - ${json.data.attributes.name}**\`\`\`\n${message ? message : 'No players online!'}\`\`\``).catch(e => {
                 error(e.message);
             });
         });

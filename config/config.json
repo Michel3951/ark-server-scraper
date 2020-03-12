@@ -2,7 +2,9 @@
   "token": "BOT_TOKEN_NOT_CLIENT_ID",
   "interval": 5,
   "channelID": "CHANNEL_ID",
+  "status": "Delta Velorum",
   "mode": 2,
+  "watchForChange": true,
   "servers": [
     {
       "url": "https://www.battlemetrics.com/servers/ark/73185"
