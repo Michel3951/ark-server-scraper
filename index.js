@@ -1,9 +1,8 @@
 const {MessageEmbed, Client} = require('discord.js');
 const fetch = require('node-fetch');
-const {token, interval, servers, channelID, mode, console_servers, apikey, status, watchForChange} = require('./config/config');
+const {token, interval, servers, channelID, mode, console_servers, apikey, status} = require('./config/config');
 
 const client = new Client();
-const older = new Map();
 
 if (!token) return error("Please specify a token in config/config.json");
 if (typeof token !== "string") return error(`Token must be a string, ${typeof token} given.`);
@@ -31,7 +30,7 @@ client.on('ready', () => {
 
     setInterval(() => {
         fetchServers();
-    }, interval * 60000);
+    }, interval * 1000);
 
     function fetchServers() {
         if (servers) {
@@ -42,11 +41,6 @@ client.on('ready', () => {
                     fetch(`https://api.battlemetrics.com/servers/${id}`)
                         .then(res => res.json())
                         .then(json => {
-                            if (!older.has(id)) {
-                                older.set(id, json.data.players);
-                            } else {
-                                if (older.get(id) === json.data.players) return;
-                            }
                             if (json.data.relationships.game.data.id !== 'ark') return warn(`Server ${server.url} is not running the game ARK: Survival Evolved.`);
                             if (!channel.permissionsFor(clientAsMember).has('SEND_MESSAGES')) return warn(`I cannot send messages in ${channel.name}`);
                             let override = null;
