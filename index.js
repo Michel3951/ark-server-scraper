@@ -30,7 +30,7 @@ client.on('ready', () => {
 
     setInterval(() => {
         fetchServers();
-    }, interval * 1000);
+    }, interval * 60e3);
 
     function fetchServers() {
         if (servers) {
